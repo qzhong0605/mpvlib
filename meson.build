@@ -15,20 +15,13 @@ build_root = meson.project_build_root()
 source_root = meson.project_source_root()
 python = find_program('python3')
 
-libass = dependency('libass', version: '>= 0.12.2')
 pthreads = dependency('threads')
 
-# the dependency order of libass -> ffmpeg is necessary due to
-# static linking symbol resolution between fontconfig and MinGW
-dependencies = [libass,
-                pthreads]
+dependencies = [pthreads]
 
 # Keeps track of all enabled/disabled features
 features = {
     'debug': get_option('debug'),
-    'gpl': get_option('gpl'),
-    'jpegxl': libavformat.version().version_compare('>= 59.27.100'),
-    'libass': true,
     'threads': true,
 }
 
@@ -84,9 +77,6 @@ endif
 
 features += {'posix': true}
 
-mswin_flags = ['-D_WIN32_WINNT=0x0602', '-DUNICODE', '-DCOBJMACROS',
-               '-DINITGUID', '-U__STRICT_ANSI__']
-
 noexecstack = false
 if cc.has_link_argument('-Wl,-z,noexecstack')
     link_flags += '-Wl,-z,noexecstack'
@@ -122,15 +112,3 @@ client_api_version = major + '.' + minor + '.0'
 libmpv = library('mpv', sources, dependencies: dependencies, gnu_symbol_visibility: 'hidden',
                  version: client_api_version, include_directories: includedir,
                  install: get_option('libmpv'), build_by_default: get_option('libmpv'))
-
-
-summary({'d3d11': features['d3d11'],
-         'gpu-next': features['libplacebo-next'],
-         'javascript': features['javascript'],
-         'libmpv': get_option('libmpv'),
-         'lua': features['lua'],
-         'opengl': features['gl'],
-         'vulkan': features['vulkan'],
-         'wayland': features['wayland'],
-         'x11': features['x11']},
-         bool_yn: true)
