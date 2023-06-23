@@ -103,12 +103,11 @@ if features['libdl']
     dependencies += libdl_dep
 endif
 
-client_h_define = cc.get_define('MPV_CLIENT_API_VERSION', prefix: '#include "libmpv/client.h"',
-                                include_directories: include_directories('.'))
-major = client_h_define.split('|')[0].split('<<')[0].strip('() ')
-minor = client_h_define.split('|')[1].strip('() ')
-client_api_version = major + '.' + minor + '.0'
+add_project_arguments(flags, language: 'c')
+add_project_link_arguments(link_flags, language: 'c')
+
+includedir = ['src']
 
 libmpv = library('mpv', sources, dependencies: dependencies, gnu_symbol_visibility: 'hidden',
-                 version: client_api_version, include_directories: includedir,
-                 install: get_option('libmpv'), build_by_default: get_option('libmpv'))
+                 include_directories: includedir,
+                 install: true, build_by_default: true)
