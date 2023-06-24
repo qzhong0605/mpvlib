@@ -24,7 +24,6 @@
 #include <stdbool.h>
 
 #include "misc/bstr.h"
-#include "audio/chmap.h"
 
 // m_option allows to parse, print and copy data of various types.
 
@@ -425,7 +424,6 @@ char *format_file_size(int64_t size);
 #define UPDATE_BUILTIN_SCRIPTS  (1 << 11) // osc/ytdl/stats
 #define UPDATE_IMGPAR           (1 << 12) // video image params overrides
 #define UPDATE_INPUT            (1 << 13) // mostly --input-* options
-#define UPDATE_AUDIO            (1 << 14) // --audio-channels etc.
 #define UPDATE_PRIORITY         (1 << 15) // --priority (Windows-only)
 #define UPDATE_SCREENSAVER      (1 << 16) // --stop-screensaver
 #define UPDATE_VOL              (1 << 17) // softvol related options
@@ -665,9 +663,6 @@ extern const char m_option_path_separator;
 
 #define OPT_IMAGEFORMAT(field) \
     OPT_TYPED_FIELD(m_option_type_imgfmt, int, field)
-
-#define OPT_AUDIOFORMAT(field) \
-    OPT_TYPED_FIELD(m_option_type_afmt, int, field)
 
 #define OPT_CHANNELS(field) \
     OPT_TYPED_FIELD(m_option_type_channels, struct m_channels, field)
