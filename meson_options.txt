@@ -9,6 +9,7 @@ option('ta-leak-report', type: 'boolean', value: false, description: 'enable ta 
 option('pthread-debug', type: 'feature', value: 'disabled', description: 'pthread runtime debugging wrappers')
 option('zimg', type: 'feature', value: 'auto', description: 'libzimg support (high quality software scaler)')
 option('zlib', type: 'feature', value: 'auto', description: 'zlib')
+option('stdatomic', type: 'feature', value: 'auto', description: 'C11 stdatomic.h')
 
 # audio output features
 option('alsa', type: 'feature', value: 'auto', description: 'ALSA audio output')

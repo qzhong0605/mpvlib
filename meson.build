@@ -141,6 +141,13 @@ features += {'darwin': darwin}
 features += {'posix': posix}
 features += {'dos-paths': win32, 'win32': win32}
 
+# atomic
+stdatomic_dep = cc.find_library('atomic', required: false)
+features += {'stdatomic': cc.has_header_symbol('stdatomic.h', 'atomic_int', dependencies: stdatomic_dep,
+                                                 required: get_option('stdatomic'))}
+if features['stdatomic']
+    dependencies += stdatomic_dep
+endif
 
 # Set config.h
 conf_data = configuration_data()
