@@ -25,11 +25,52 @@ features = {
     'threads': true,
 }
 
+# Set config.h
+conf_data = configuration_data()
+# conf_data.set_quoted('CONFIGURATION', configuration)
+# conf_data.set_quoted('DEFAULT_DVD_DEVICE', dvd_device)
+# conf_data.set_quoted('DEFAULT_CDROM_DEVICE', cd_device)
+
+# Loop over all features in the build, create a define and add them to config.h
+feature_keys = []
+foreach feature, allowed: features
+    define = 'HAVE_@0@'.format(feature.underscorify().to_upper())
+    conf_data.set10(define, allowed)
+    # special handling for lua
+    if feature == 'lua' and allowed
+        feature_keys += lua_version
+        continue
+    endif
+    if allowed
+        feature_keys += feature
+    endif
+endforeach
+
+# Script to sort the feature_keys object.
+feature_sort = '''
+#!/usr/bin/env python3
+import sys
+features = " ".join(sorted(sys.argv[1:]))
+sys.stdout.write(features)
+'''
+feature_str = run_command(python, '-c', feature_sort, feature_keys, check: true).stdout()
+conf_data.set_quoted('FULLCONFIG', feature_str)
+conf_data.set_quoted('MPV_CONFDIR', join_paths(get_option('prefix'), get_option('sysconfdir'), 'mpv'))
+conf_data.set_quoted('PLATFORM', host_machine.system())
+configure_file(output : 'config.h', configuration : conf_data)
+message('List of enabled features: ' + feature_str)
 
 # generic sources
 sources = files(
     ## compilation 
     'src/compilation/shader_cache.c',
+
+    ## os deps
+    'src/osdep/io.c',
+
+    ## tree allocator
+    'src/ta/ta.c',
+    'src/ta/ta_talloc.c',
 )
 
 
