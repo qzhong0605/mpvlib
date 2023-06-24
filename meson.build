@@ -65,12 +65,26 @@ sources = files(
     ## compilation 
     'src/compilation/shader_cache.c',
 
+    ## common
+    'src/common/common.c',
+    'src/common/msg.c',
+
+    ## options
+    'src/options/options.c',
+    'src/options/path.c',
+    'src/options/m_option.c',
+
     ## os deps
     'src/osdep/io.c',
+
+    ## misc 
+    'src/misc/bstr.c',
+    'src/misc/random.c',
 
     ## tree allocator
     'src/ta/ta.c',
     'src/ta/ta_talloc.c',
+    'src/ta/ta_utils.c',
 )
 
 
