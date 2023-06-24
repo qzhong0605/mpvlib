@@ -31,6 +31,7 @@ sources = files(
     'src/compilation/shader_cache.c',
     'src/compilation/utils.c',
     'src/compilation/ra.c',
+    'src/compilation/context.c',
 
     ## core 
     'src/common/common.c',
@@ -52,6 +53,9 @@ sources = files(
     'src/ta/ta.c',
     'src/ta/ta_talloc.c',
     'src/ta/ta_utils.c',
+
+    ## vide-related 
+    'src/video/opengl/context_android.c',
 )
 
 
