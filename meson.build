@@ -130,6 +130,15 @@ if features['android']
     sources += files('src/osdep/android/strnlen.c')
 endif 
 
+# uwp
+uwp_opt = get_option('uwp')
+uwp = cc.find_library('windowsapp', required: uwp_opt)
+features += {'uwp': uwp.found()}
+if features['uwp']
+    dependencies += uwp
+    sources += files('osdep/path-uwp.c')
+endif
+
 features += {'glob-posix': cc.has_function('glob', prefix: '#include <glob.h>')}
 features += {'glob': features['glob-posix'] or features['glob-win32']}
 
