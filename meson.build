@@ -25,41 +25,6 @@ features = {
     'threads': true,
 }
 
-# Set config.h
-conf_data = configuration_data()
-# conf_data.set_quoted('CONFIGURATION', configuration)
-# conf_data.set_quoted('DEFAULT_DVD_DEVICE', dvd_device)
-# conf_data.set_quoted('DEFAULT_CDROM_DEVICE', cd_device)
-
-# Loop over all features in the build, create a define and add them to config.h
-feature_keys = []
-foreach feature, allowed: features
-    define = 'HAVE_@0@'.format(feature.underscorify().to_upper())
-    conf_data.set10(define, allowed)
-    # special handling for lua
-    if feature == 'lua' and allowed
-        feature_keys += lua_version
-        continue
-    endif
-    if allowed
-        feature_keys += feature
-    endif
-endforeach
-
-# Script to sort the feature_keys object.
-feature_sort = '''
-#!/usr/bin/env python3
-import sys
-features = " ".join(sorted(sys.argv[1:]))
-sys.stdout.write(features)
-'''
-feature_str = run_command(python, '-c', feature_sort, feature_keys, check: true).stdout()
-conf_data.set_quoted('FULLCONFIG', feature_str)
-conf_data.set_quoted('MPV_CONFDIR', join_paths(get_option('prefix'), get_option('sysconfdir'), 'mpv'))
-conf_data.set_quoted('PLATFORM', host_machine.system())
-configure_file(output : 'config.h', configuration : conf_data)
-message('List of enabled features: ' + feature_str)
-
 # generic sources
 sources = files(
     ## compilation 
@@ -71,8 +36,8 @@ sources = files(
 
     ## options
     'src/options/options.c',
-    'src/options/path.c',
     'src/options/m_option.c',
+    'src/options/path.c',
 
     ## os deps
     'src/osdep/io.c',
@@ -157,6 +122,61 @@ features += {'libdl': cc.has_function('dlopen', dependencies: libdl_dep, prefix:
 if features['libdl']
     dependencies += libdl_dep
 endif
+
+# android 
+features += {'android': host_machine.system() == 'android'}
+if features['android']
+    dependencies += cc.find_library('android')
+    sources += files('src/osdep/android/strnlen.c')
+endif 
+
+features += {'glob-posix': cc.has_function('glob', prefix: '#include <glob.h>')}
+features += {'glob': features['glob-posix'] or features['glob-win32']}
+
+darwin = host_machine.system() == 'darwin'
+win32 = host_machine.system() == 'cygwin' or host_machine.system() == 'windows'
+posix = not win32
+
+features += {'darwin': darwin}
+features += {'posix': posix}
+features += {'dos-paths': win32, 'win32': win32}
+
+
+# Set config.h
+conf_data = configuration_data()
+# conf_data.set_quoted('CONFIGURATION', configuration)
+# conf_data.set_quoted('DEFAULT_DVD_DEVICE', dvd_device)
+# conf_data.set_quoted('DEFAULT_CDROM_DEVICE', cd_device)
+
+# Loop over all features in the build, create a define and add them to config.h
+feature_keys = []
+foreach feature, allowed: features
+    define = 'HAVE_@0@'.format(feature.underscorify().to_upper())
+    conf_data.set10(define, allowed)
+    # special handling for lua
+    if feature == 'lua' and allowed
+        feature_keys += lua_version
+        continue
+    endif
+    if allowed
+        feature_keys += feature
+    endif
+endforeach
+
+# Script to sort the feature_keys object.
+feature_sort = '''
+#!/usr/bin/env python3
+import sys
+features = " ".join(sorted(sys.argv[1:]))
+sys.stdout.write(features)
+'''
+feature_str = run_command(python, '-c', feature_sort, feature_keys, check: true).stdout()
+conf_data.set_quoted('FULLCONFIG', feature_str)
+conf_data.set_quoted('MPV_CONFDIR', join_paths(get_option('prefix'), get_option('sysconfdir'), 'mpv'))
+conf_data.set_quoted('PLATFORM', host_machine.system())
+configure_file(output : 'config.h', configuration : conf_data)
+message('List of enabled features: ' + feature_str)
+
 
 add_project_arguments(flags, language: 'c')
 add_project_link_arguments(link_flags, language: 'c')
