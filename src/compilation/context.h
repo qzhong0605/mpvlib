@@ -1,7 +1,5 @@
 #pragma once
 
-#include "video/csputils.h"
-
 #include "ra.h"
 
 struct ra_ctx_opts {
@@ -12,8 +10,6 @@ struct ra_ctx_opts {
     char *context_name;  // filter by `ra_ctx_fns.name`
     char *context_type;  // filter by `ra_ctx_fns.type`
 };
-
-extern const struct m_sub_options ra_ctx_conf;
 
 struct ra_ctx {
     struct vo *vo;
