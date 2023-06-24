@@ -36,6 +36,7 @@
 #include "osdep/io.h"
 #include "osdep/threads.h"
 #include "osdep/timer.h"
+#include "libmpv/client.h"
 
 #include "msg.h"
 #include "msg_control.h"
@@ -533,45 +534,7 @@ void mp_msg_init(struct mpv_global *global)
     global->log = log;
 }
 
-static void *log_file_thread(void *p)
-{
-    struct mp_log_root *root = p;
 
-    mpthread_set_name("log-file");
-
-    pthread_mutex_lock(&root->log_file_lock);
-
-    while (root->log_file_thread_active) {
-        struct mp_log_buffer_entry *e =
-            mp_msg_log_buffer_read(root->log_file_buffer);
-        if (e) {
-            pthread_mutex_unlock(&root->log_file_lock);
-            fprintf(root->log_file, "[%8.3f][%c][%s] %s",
-                    (mp_time_us() - MP_START_TIME) / 1e6,
-                    mp_log_levels[e->level][0], e->prefix, e->text);
-            fflush(root->log_file);
-            pthread_mutex_lock(&root->log_file_lock);
-            talloc_free(e);
-            // Multiple threads might be blocked if the log buffer was full.
-            pthread_cond_broadcast(&root->log_file_wakeup);
-        } else {
-            pthread_cond_wait(&root->log_file_wakeup, &root->log_file_lock);
-        }
-    }
-
-    pthread_mutex_unlock(&root->log_file_lock);
-
-    return NULL;
-}
-
-static void wakeup_log_file(void *p)
-{
-    struct mp_log_root *root = p;
-
-    pthread_mutex_lock(&root->log_file_lock);
-    pthread_cond_broadcast(&root->log_file_wakeup);
-    pthread_mutex_unlock(&root->log_file_lock);
-}
 
 // Only to be called from the main thread.
 static void terminate_log_file_thread(struct mp_log_root *root)
@@ -595,32 +558,6 @@ static void terminate_log_file_thread(struct mp_log_root *root)
     if (root->log_file)
         fclose(root->log_file);
     root->log_file = NULL;
-}
-
-// If opt is different from *current_path, update *current_path and return true.
-// No lock must be held; passed values must be accessible without.
-static bool check_new_path(struct mpv_global *global, char *opt,
-                           char **current_path)
-{
-    void *tmp = talloc_new(NULL);
-    bool res = false;
-
-    char *new_path = mp_get_user_path(tmp, global, opt);
-    if (!new_path)
-        new_path = "";
-
-    char *old_path = *current_path ? *current_path : "";
-    if (strcmp(old_path, new_path) != 0) {
-        talloc_free(*current_path);
-        *current_path = NULL;
-        if (new_path && new_path[0])
-            *current_path = talloc_strdup(NULL, new_path);
-        res = true;
-    }
-
-    talloc_free(tmp);
-
-    return res;
 }
 
 void mp_msg_force_stderr(struct mpv_global *global, bool force_stderr)
@@ -651,7 +588,7 @@ void mp_msg_uninit(struct mpv_global *global)
         fclose(root->stats_file);
     talloc_free(root->stats_path);
     talloc_free(root->log_path);
-    m_option_type_msglevels.free(&root->msg_levels);
+    // m_option_type_msglevels.free(&root->msg_levels);
     pthread_mutex_destroy(&root->lock);
     pthread_mutex_destroy(&root->log_file_lock);
     pthread_cond_destroy(&root->log_file_wakeup);
