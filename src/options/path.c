@@ -32,7 +32,6 @@
 #include "common/common.h"
 #include "common/global.h"
 #include "common/msg.h"
-#include "options/options.h"
 #include "options/path.h"
 #include "mpv_talloc.h"
 #include "osdep/io.h"
@@ -41,9 +40,6 @@
 
 // In order of decreasing priority: the first has highest priority.
 static const mp_get_platform_path_cb path_resolvers[] = {
-#if HAVE_COCOA
-    mp_get_platform_path_osx,
-#endif
 #if HAVE_DARWIN
     mp_get_platform_path_darwin,
 #elif !defined(_WIN32) || defined(__CYGWIN__)
@@ -97,7 +93,7 @@ static const char *mp_get_platform_path(void *talloc_ctx,
     return NULL;
 }
 
-void mp_init_paths(struct mpv_global *global, struct MPOpts *opts)
+void mp_init_paths(struct mpv_global *global)
 {
     TA_FREEP(&global->configdir);
 
@@ -113,11 +109,6 @@ void mp_init_paths(struct mpv_global *global, struct MPOpts *opts)
     talloc_free(tmp);
 
     const char *force_configdir = getenv("MPV_HOME");
-    if (opts->force_configdir && opts->force_configdir[0])
-        force_configdir = opts->force_configdir;
-    if (!opts->load_config)
-        force_configdir = "";
-
     global->configdir = talloc_strdup(global, force_configdir);
 }
 
