@@ -65,7 +65,7 @@ sources = files(
     ## compilation 
     'src/compilation/shader_cache.c',
 
-    ## common
+    ## core 
     'src/common/common.c',
     'src/common/msg.c',
 
