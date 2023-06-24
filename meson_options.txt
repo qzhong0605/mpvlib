@@ -11,6 +11,7 @@ option('zimg', type: 'feature', value: 'auto', description: 'libzimg support (hi
 option('zlib', type: 'feature', value: 'auto', description: 'zlib')
 option('stdatomic', type: 'feature', value: 'auto', description: 'C11 stdatomic.h')
 option('win32-internal-pthreads', type: 'feature', value: 'auto', description: 'internal pthread wrapper for win32 (Vista+)')
+option('uwp', type: 'feature', value: 'disabled', description: 'Universal Windows Platform')
 
 # video output features
 option('egl', type: 'feature', value: 'auto', description: 'EGL 1.4')
@@ -21,7 +22,6 @@ option('egl-angle-win32', type: 'feature', value: 'auto', description: 'OpenGL W
 option('egl-drm', type: 'feature', value: 'auto', description: 'OpenGL DRM EGL Backend')
 option('egl-wayland', type: 'feature', value: 'auto', description: 'OpenGL Wayland Backend')
 option('egl-x11', type: 'feature', value: 'auto', description: 'OpenGL X11 EGL Backend')
-option('gbm', type: 'feature', value: 'auto', description: 'GBM')
 option('gl', type: 'feature', value: 'enabled', description: 'OpenGL context support')
 option('gl-cocoa', type: 'feature', value: 'auto', description: 'gl-cocoa')
 option('gl-dxinterop', type: 'feature', value: 'auto', description: 'OpenGL/DirectX Interop Backend')
