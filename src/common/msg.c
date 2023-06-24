@@ -31,14 +31,11 @@
 #include "common/common.h"
 #include "common/global.h"
 #include "misc/bstr.h"
-#include "options/options.h"
 #include "options/path.h"
 #include "osdep/terminal.h"
 #include "osdep/io.h"
 #include "osdep/threads.h"
 #include "osdep/timer.h"
-
-#include "libmpv/client.h"
 
 #include "msg.h"
 #include "msg_control.h"
@@ -624,93 +621,6 @@ static bool check_new_path(struct mpv_global *global, char *opt,
     talloc_free(tmp);
 
     return res;
-}
-
-void mp_msg_update_msglevels(struct mpv_global *global, struct MPOpts *opts)
-{
-    struct mp_log_root *root = global->log->root;
-
-    pthread_mutex_lock(&root->lock);
-
-    root->verbose = opts->verbose;
-    root->really_quiet = opts->msg_really_quiet;
-    root->module = opts->msg_module;
-    root->use_terminal = opts->use_terminal;
-    root->show_time = opts->msg_time;
-    if (root->use_terminal)
-        root->color = opts->msg_color && isatty(STDOUT_FILENO);
-
-    m_option_type_msglevels.free(&root->msg_levels);
-    m_option_type_msglevels.copy(NULL, &root->msg_levels, &opts->msg_levels);
-
-    atomic_fetch_add(&root->reload_counter, 1);
-    pthread_mutex_unlock(&root->lock);
-
-    if (check_new_path(global, opts->log_file, &root->log_path)) {
-        terminate_log_file_thread(root);
-        if (root->log_path) {
-            root->log_file = fopen(root->log_path, "wb");
-            if (root->log_file) {
-
-                // if a logfile is created and the early filebuf still exists,
-                // flush and destroy the early buffer
-                pthread_mutex_lock(&root->lock);
-                struct mp_log_buffer *earlybuf = root->early_filebuffer;
-                if (earlybuf)
-                    root->early_filebuffer = NULL;  // but it still logs msgs
-                pthread_mutex_unlock(&root->lock);
-
-                if (earlybuf) {
-                    // flush, destroy before creating the normal logfile buf,
-                    // as once the new one is created (specifically, its write
-                    // thread), then MSGL_LOGFILE messages become blocking, but
-                    // the early logfile buf is without dequeue - can deadlock.
-                    // note: timestamp is unknown, we use 0.000 as indication.
-                    // note: new messages while iterating are still flushed.
-                    struct mp_log_buffer_entry *e;
-                    while ((e = mp_msg_log_buffer_read(earlybuf))) {
-                        fprintf(root->log_file, "[%8.3f][%c][%s] %s", 0.0,
-                                mp_log_levels[e->level][0], e->prefix, e->text);
-                        talloc_free(e);
-                    }
-                    mp_msg_log_buffer_destroy(earlybuf);  // + remove from root
-                }
-
-                root->log_file_buffer =
-                    mp_msg_log_buffer_new(global, FILE_BUF, MP_LOG_BUFFER_MSGL_LOGFILE,
-                                          wakeup_log_file, root);
-                root->log_file_thread_active = true;
-                if (pthread_create(&root->log_file_thread, NULL, log_file_thread,
-                                   root))
-                {
-                    root->log_file_thread_active = false;
-                    terminate_log_file_thread(root);
-                }
-            } else {
-                mp_err(global->log, "Failed to open log file '%s'\n",
-                       root->log_path);
-            }
-        }
-    }
-
-    if (check_new_path(global, opts->dump_stats, &root->stats_path)) {
-        bool open_error = false;
-
-        pthread_mutex_lock(&root->lock);
-        if (root->stats_file)
-            fclose(root->stats_file);
-        root->stats_file = NULL;
-        if (root->stats_path) {
-            root->stats_file = fopen(root->stats_path, "wb");
-            open_error = !root->stats_file;
-        }
-        pthread_mutex_unlock(&root->lock);
-
-        if (open_error) {
-            mp_err(global->log, "Failed to open stats file '%s'\n",
-                   root->stats_path);
-        }
-    }
 }
 
 void mp_msg_force_stderr(struct mpv_global *global, bool force_stderr)
