@@ -35,12 +35,12 @@ sources = files(
     'src/common/msg.c',
 
     ## options
-    'src/options/options.c',
-    'src/options/m_option.c',
     'src/options/path.c',
 
     ## os deps
     'src/osdep/io.c',
+    'src/osdep/timer.c',
+    'src/osdep/threads.c',
 
     ## misc 
     'src/misc/bstr.c',
@@ -149,6 +149,36 @@ if features['stdatomic']
     dependencies += stdatomic_dep
 endif
 
+# macOS's pthread_setname_np is a special snowflake and differs from literally every other platform.
+features += {'osx-thread-name': darwin}
+
+features += {'glibc-thread-name': false}
+if not features['osx-thread-name']
+    features += {'glibc-thread-name': posix and cc.has_function('pthread_setname_np', args: '-D_GNU_SOURCE',
+                 dependencies: pthreads, prefix: '#include <pthread.h>')}
+endif
+
+features += {'bsd-thread-name': false}
+if not features['osx-thread-name'] and not features['glibc-thread-name']
+    features += {'bsd-thread-name': posix and cc.has_function('pthread_set_name_np', dependencies: pthreads,
+                  prefix: '#include <pthread.h>\n#include <pthread_np.h>')}
+endif
+
+includedir = []
+win32_pthreads = get_option('win32-internal-pthreads').require(
+    win32 and not posix,
+    error_message: 'the os is not win32!',
+)
+features += {'win32-internal-pthreads': win32_pthreads.allowed()}
+if features['win32-internal-pthreads']
+    flags += ['-isystem', '-I', '-DIN_WINPTHREAD']
+    # Note: Adding this include causes POSIX_TIMERS to be defined for
+    # unclear reasons (some confusion with <pthread.h> probably).
+    # Hack around it by using HAVE_WIN32_INTERNAL_PTHREADS.
+    includedir += include_directories('osdep/win32/include')
+    sources += files('osdep/win32/pthread.c')
+endif
+
 # Set config.h
 conf_data = configuration_data()
 # conf_data.set_quoted('CONFIGURATION', configuration)
@@ -188,7 +218,7 @@ message('List of enabled features: ' + feature_str)
 add_project_arguments(flags, language: 'c')
 add_project_link_arguments(link_flags, language: 'c')
 
-includedir = ['src']
+includedir += ['src']
 
 libmpv = library('mpv', sources, dependencies: dependencies, gnu_symbol_visibility: 'hidden',
                  include_directories: includedir,
