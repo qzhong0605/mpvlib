@@ -12,7 +12,6 @@
 
 #include "common/common.h"
 #include "options/path.h"
-#include "stream/stream.h"
 #include "shader_cache.h"
 #include "utils.h"
 

@@ -5,7 +5,7 @@
 #include "ra.h"
 
 // For mp_pass_perf
-#include "video/out/vo.h"
+// #include "video/out/vo.h"
 
 struct mp_log;
 struct mpv_global;

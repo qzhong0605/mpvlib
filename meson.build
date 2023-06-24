@@ -29,6 +29,8 @@ features = {
 sources = files(
     ## compilation 
     'src/compilation/shader_cache.c',
+    'src/compilation/utils.c',
+    'src/compilation/ra.c',
 
     ## core 
     'src/common/common.c',
