@@ -573,33 +573,6 @@ static bool create_pass(struct gl_shader_cache *sc, struct sc_entry *entry)
     char *cache_filename = NULL;
     char *cache_dir = NULL;
 
-    if (sc->cache_dir && sc->cache_dir[0]) {
-        // Try to load it from a disk cache.
-        cache_dir = mp_get_user_path(tmp, sc->global, sc->cache_dir);
-
-        struct AVSHA *sha = av_sha_alloc();
-        MP_HANDLE_OOM(sha);
-        av_sha_init(sha, 256);
-        av_sha_update(sha, entry->total.start, entry->total.len);
-
-        uint8_t hash[256 / 8];
-        av_sha_final(sha, hash);
-        av_free(sha);
-
-        char hashstr[256 / 8 * 2 + 1];
-        for (int n = 0; n < 256 / 8; n++)
-            snprintf(hashstr + n * 2, sizeof(hashstr) - n * 2, "%02X", hash[n]);
-
-        cache_filename = mp_path_join(tmp, cache_dir, hashstr);
-        if (stat(cache_filename, &(struct stat){0}) == 0) {
-            MP_DBG(sc, "Trying to load shader from disk...\n");
-            struct bstr cachedata =
-                stream_read_file(cache_filename, tmp, sc->global, 1000000000);
-            if (bstr_eatstart0(&cachedata, cache_header))
-                params.cached_program = cachedata;
-        }
-    }
-
     // If using a UBO, also make sure to add it as an input value so the RA
     // can see it
     if (sc->ubo_size) {
