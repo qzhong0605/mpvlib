@@ -32,9 +32,8 @@ sources = files(
     'src/path.c',
     'src/msg.c',
 
-    ## dataset
-
     ## glsl-related
+    'src/shader_cache.c',
     'src/user_shaders.c',
     'src/utils.c',
     'src/ra.c',
