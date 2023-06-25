@@ -22,7 +22,7 @@
 
 #include "osdep/endian.h"
 #include "misc/bstr.h"
-#include "video/csputils.h"
+#include "imgproc/csputils.h"
 
 #if BYTE_ORDER == BIG_ENDIAN
 #define MP_SELECT_LE_BE(LE, BE) BE

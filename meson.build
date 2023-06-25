@@ -27,9 +27,17 @@ features = {
 
 # generic sources
 sources = files(
+    ## common
     'src/common.c',
     'src/path.c',
     'src/msg.c',
+
+    ## dataset
+
+    ## glsl-related
+    # 'src/user_shaders.c',
+    # 'src/utils.c',
+    'src/ra.c',
 
     ## osdeps
     'src/osdep/timer.c',

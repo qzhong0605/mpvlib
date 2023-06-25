@@ -178,17 +178,11 @@ enum mp_chroma_location {
     MP_CHROMA_COUNT,
 };
 
-extern const struct m_opt_choice_alternatives mp_chroma_names[];
-
 enum mp_alpha_type {
     MP_ALPHA_AUTO,
     MP_ALPHA_STRAIGHT,
     MP_ALPHA_PREMUL,
 };
-
-extern const struct m_opt_choice_alternatives mp_alpha_names[];
-
-extern const struct m_sub_options mp_csp_equalizer_conf;
 
 struct mpv_global;
 struct mp_csp_equalizer_state *mp_csp_equalizer_create(void *ta_parent,
