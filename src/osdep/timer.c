@@ -23,9 +23,10 @@
 #include <limits.h>
 #include <assert.h>
 
-#include "common/common.h"
-#include "common/msg.h"
 #include "misc/random.h"
+
+#include "common.h"
+#include "msg.h"
 #include "timer.h"
 
 static uint64_t raw_time_offset;

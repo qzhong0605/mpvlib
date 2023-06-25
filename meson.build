@@ -31,6 +31,9 @@ sources = files(
     'src/path.c',
     # 'src/msg.c',
 
+    ## osdeps
+    'src/osdep/timer.c',
+
     ## tree allocator
     'src/ta/ta.c',
     'src/ta/ta_talloc.c',
