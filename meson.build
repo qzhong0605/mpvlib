@@ -148,7 +148,7 @@ features += {'egl-android': egl_android.found()}
 if features['egl-android']
     dependencies += egl_android
     features += {'gl': true}
-    sources += files('src/video/opengl/context_android.c')
+    sources += files('src/opengl/context_android.c')
 endif
 
 shaderc = dependency('shaderc', required: get_option('shaderc'))
