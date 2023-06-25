@@ -1,5 +1,5 @@
-#ifndef MPV_CLIENT_API_H_
-#define MPV_CLIENT_API_H_
+#ifndef MPV_LOG_LEVEL_H_
+#define MPV_LOG_LEVEL_H_
 
 /**
  * Numeric log levels. The lower the number, the more important the message is.
