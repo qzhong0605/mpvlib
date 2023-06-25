@@ -29,7 +29,7 @@ features = {
 sources = files(
     'src/common.c',
     'src/path.c',
-    # 'src/msg.c',
+    'src/msg.c',
 
     ## osdeps
     'src/osdep/timer.c',

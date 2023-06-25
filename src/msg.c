@@ -24,20 +24,17 @@
 #include <pthread.h>
 #include <stdint.h>
 
-#include "mpv_talloc.h"
-
 #include "misc/bstr.h"
 #include "osdep/atomic.h"
-#include "common/common.h"
-#include "common/global.h"
-#include "misc/bstr.h"
-#include "options/path.h"
-#include "osdep/terminal.h"
 #include "osdep/io.h"
 #include "osdep/threads.h"
 #include "osdep/timer.h"
-#include "libmpv/client.h"
 
+#include "common.h"
+#include "global.h"
+#include "mpv_talloc.h"
+#include "path.h"
+#include "log_level.h"
 #include "msg.h"
 #include "msg_control.h"
 
@@ -256,84 +253,6 @@ bool mp_msg_has_status_line(struct mpv_global *global)
     return r;
 }
 
-static void set_term_color(FILE *stream, int c)
-{
-    if (c == -1) {
-        fprintf(stream, "\033[0m");
-    } else {
-        fprintf(stream, "\033[%d;3%dm", c >> 3, c & 7);
-    }
-}
-
-
-static void set_msg_color(FILE* stream, int lev)
-{
-    static const int v_colors[] = {9, 1, 3, -1, -1, 2, 8, 8, 8, -1};
-    set_term_color(stream, v_colors[lev]);
-}
-
-static void pretty_print_module(FILE* stream, const char *prefix, bool use_color, int lev)
-{
-    // Use random color based on the name of the module
-    if (use_color) {
-        size_t prefix_len = strlen(prefix);
-        unsigned int mod = 0;
-        for (int i = 0; i < prefix_len; ++i)
-            mod = mod * 33 + prefix[i];
-        set_term_color(stream, (mod + 1) % 15 + 1);
-    }
-
-    fprintf(stream, "%10s", prefix);
-    if (use_color)
-        set_term_color(stream, -1);
-    fprintf(stream, ": ");
-    if (use_color)
-        set_msg_color(stream, lev);
-}
-
-static bool test_terminal_level(struct mp_log *log, int lev)
-{
-    return lev <= log->terminal_level && log->root->use_terminal &&
-           !(lev == MSGL_STATUS && terminal_in_background());
-}
-
-static void print_terminal_line(struct mp_log *log, int lev,
-                                char *text,  char *trail)
-{
-    if (!test_terminal_level(log, lev))
-        return;
-
-    struct mp_log_root *root = log->root;
-    FILE *stream = (root->force_stderr || lev == MSGL_STATUS) ? stderr : stdout;
-
-    if (lev != MSGL_STATUS)
-        flush_status_line(root);
-
-    if (root->color)
-        set_msg_color(stream, lev);
-
-    if (root->show_time)
-        fprintf(stream, "[%10.6f] ", (mp_time_us() - MP_START_TIME) / 1e6);
-
-    const char *prefix = log->prefix;
-    if ((lev >= MSGL_V) || root->verbose || root->module)
-        prefix = log->verbose_prefix;
-
-    if (prefix) {
-        if (root->module) {
-            pretty_print_module(stream, prefix, root->color, lev);
-        } else {
-            fprintf(stream, "[%s] ", prefix);
-        }
-    }
-
-    fprintf(stream, "%s%s", text, trail);
-
-    if (root->color)
-        set_term_color(stream, -1);
-    fflush(stream);
-}
-
 static struct mp_log_buffer_entry *log_buffer_read(struct mp_log_buffer *buffer)
 {
     assert(buffer->num_entries);
@@ -426,8 +345,6 @@ void mp_msg_va(struct mp_log *log, int lev, const char *format, va_list va)
 
     if (lev == MSGL_STATS) {
         dump_stats(log, lev, text);
-    } else if (lev == MSGL_STATUS && !test_terminal_level(log, lev)) {
-        /* discard */
     } else {
         if (lev == MSGL_STATUS)
             prepare_status_line(root, text);
@@ -441,16 +358,12 @@ void mp_msg_va(struct mp_log *log, int lev, const char *format, va_list va)
             char *next = &end[1];
             char saved = next[0];
             next[0] = '\0';
-            print_terminal_line(log, lev, text, "");
             write_msg_to_buffers(log, lev, text);
             next[0] = saved;
             text = next;
         }
 
-        if (lev == MSGL_STATUS) {
-            if (text[0])
-                print_terminal_line(log, lev, text, "\r");
-        } else if (text[0]) {
+        if (text[0]) {
             int size = strlen(text) + 1;
             if (talloc_get_size(log->partial) < size)
                 log->partial = talloc_realloc(NULL, log->partial, char, size);
