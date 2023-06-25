@@ -35,7 +35,7 @@ sources = files(
     ## dataset
 
     ## glsl-related
-    # 'src/user_shaders.c',
+    'src/user_shaders.c',
     'src/utils.c',
     'src/ra.c',
     'src/spirv.c',
