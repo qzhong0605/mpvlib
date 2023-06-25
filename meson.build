@@ -33,6 +33,8 @@ sources = files(
 
     ## osdeps
     'src/osdep/timer.c',
+    'src/osdep/threads.c',
+    'src/osdep/io.c',
 
     ## tree allocator
     'src/ta/ta.c',

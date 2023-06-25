@@ -29,12 +29,11 @@
 #include <limits.h>
 #include <unistd.h>
 
-#include "mpv_talloc.h"
-
-#include "config.h"
 #include "misc/random.h"
 #include "osdep/io.h"
-#include "osdep/terminal.h"
+
+#include "mpv_talloc.h"
+#include "config.h"
 
 #if HAVE_UWP
 // Missing from MinGW headers.
@@ -346,7 +345,6 @@ static int mp_vfprintf(FILE *stream, const char *format, va_list args)
 
         if (buf) {
             done = vsnprintf(buf, len, format, args);
-            mp_write_console_ansi(wstream, buf);
         }
         talloc_free(buf);
     } else {

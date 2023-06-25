@@ -19,7 +19,7 @@
 #include <errno.h>
 #include <pthread.h>
 
-#include "common/common.h"
+#include "common.h"
 #include "config.h"
 #include "threads.h"
 #include "timer.h"
