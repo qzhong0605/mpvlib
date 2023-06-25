@@ -27,6 +27,8 @@ features = {
 
 # generic sources
 sources = files(
+    'src/common.c',
+
     ## tree allocator
     'src/ta/ta.c',
     'src/ta/ta_talloc.c',

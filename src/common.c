@@ -20,13 +20,13 @@
 #include <assert.h>
 
 #include <libavutil/common.h>
-#include <libavutil/error.h>
 
-#include "mpv_talloc.h"
 #include "misc/bstr.h"
 #include "misc/ctype.h"
-#include "common/common.h"
 #include "osdep/strnlen.h"
+
+#include "mpv_talloc.h"
+#include "common.h"
 
 #define appendf(ptr, ...) \
     do {(*(ptr)) = talloc_asprintf_append_buffer(*(ptr), __VA_ARGS__);} while(0)

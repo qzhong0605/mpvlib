@@ -54,44 +54,6 @@
 // Return a+b, unless a is NOPTS. b must not be NOPTS.
 #define MP_ADD_PTS(a, b) ((a) == MP_NOPTS_VALUE ? (a) : ((a) + (b)))
 
-#define CONTROL_OK 1
-#define CONTROL_TRUE 1
-#define CONTROL_FALSE 0
-#define CONTROL_UNKNOWN -1
-#define CONTROL_ERROR -2
-#define CONTROL_NA -3
-
-enum stream_type {
-    STREAM_VIDEO,
-    STREAM_AUDIO,
-    STREAM_SUB,
-    STREAM_TYPE_COUNT,
-};
-
-enum video_sync {
-    VS_DEFAULT = 0,
-    VS_DISP_RESAMPLE,
-    VS_DISP_RESAMPLE_VDROP,
-    VS_DISP_RESAMPLE_NONE,
-    VS_DISP_TEMPO,
-    VS_DISP_ADROP,
-    VS_DISP_VDROP,
-    VS_DISP_NONE,
-    VS_NONE,
-};
-
-#define VS_IS_DISP(x) ((x) == VS_DISP_RESAMPLE ||       \
-                       (x) == VS_DISP_RESAMPLE_VDROP || \
-                       (x) == VS_DISP_RESAMPLE_NONE ||  \
-                       (x) == VS_DISP_TEMPO ||          \
-                       (x) == VS_DISP_ADROP ||          \
-                       (x) == VS_DISP_VDROP ||          \
-                       (x) == VS_DISP_NONE)
-
-extern const char mpv_version[];
-extern const char mpv_builddate[];
-extern const char mpv_copyright[];
-
 char *mp_format_time(double time, bool fractions);
 char *mp_format_time_fmt(const char *fmt, double time);
 
