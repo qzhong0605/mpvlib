@@ -27,34 +27,11 @@ features = {
 
 # generic sources
 sources = files(
-    ## compilation 
-    'src/compilation/shader_cache.c',
-    'src/compilation/utils.c',
-    'src/compilation/ra.c',
-    'src/compilation/context.c',
-
-    ## core 
-    'src/common/common.c',
-    'src/common/msg.c',
-
-    ## options
-    'src/options/path.c',
-
-    ## os deps
-    'src/osdep/io.c',
-    'src/osdep/timer.c',
-    'src/osdep/threads.c',
-
-    ## misc 
-    'src/misc/bstr.c',
-    'src/misc/random.c',
-
     ## tree allocator
     'src/ta/ta.c',
     'src/ta/ta_talloc.c',
     'src/ta/ta_utils.c',
 )
-
 
 # compiler stuff
 cc = meson.get_compiler('c')
