@@ -53,9 +53,6 @@ sources = files(
     'src/ta/ta.c',
     'src/ta/ta_talloc.c',
     'src/ta/ta_utils.c',
-
-    ## vide-related 
-    'src/video/opengl/context_android.c',
 )
 
 
@@ -135,6 +132,28 @@ if features['android']
     dependencies += cc.find_library('android')
     sources += files('src/osdep/android/strnlen.c')
 endif 
+
+# OpenGL feature checking
+gl_allowed = get_option('gl').allowed()
+features += {'gl': false}
+
+egl = dependency('egl', version: '> 1.4.0', required: get_option('egl'))
+features += {'egl': egl.found() and gl_allowed}
+if features['egl']
+    dependencies += egl
+endif
+
+egl_android_opt = get_option('egl-android').require(
+    features['android'] and gl_allowed,
+    error_message: 'the OS is not android!',
+)
+egl_android = cc.find_library('EGL', required: egl_android_opt)
+features += {'egl-android': egl_android.found()}
+if features['egl-android']
+    dependencies += egl_android
+    features += {'gl': true}
+    sources += files('src/video/opengl/context_android.c')
+endif
 
 # uwp
 uwp_opt = get_option('uwp')
