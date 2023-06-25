@@ -38,6 +38,7 @@ sources = files(
     # 'src/user_shaders.c',
     # 'src/utils.c',
     'src/ra.c',
+    'src/spirv.c',
 
     ## osdeps
     'src/osdep/timer.c',
@@ -147,6 +148,13 @@ if features['egl-android']
     dependencies += egl_android
     features += {'gl': true}
     sources += files('src/video/opengl/context_android.c')
+endif
+
+shaderc = dependency('shaderc', required: get_option('shaderc'))
+features += {'shaderc': shaderc.found()}
+if features['shaderc']
+    dependencies += shaderc
+    sources += files('src/spirv_shaderc.c')
 endif
 
 # uwp
