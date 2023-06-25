@@ -13,7 +13,7 @@ option('stdatomic', type: 'feature', value: 'auto', description: 'C11 stdatomic.
 option('win32-internal-pthreads', type: 'feature', value: 'auto', description: 'internal pthread wrapper for win32 (Vista+)')
 option('uwp', type: 'feature', value: 'disabled', description: 'Universal Windows Platform')
 
-# video output features
+# render features
 option('egl', type: 'feature', value: 'auto', description: 'EGL 1.4')
 option('egl-android', type: 'feature', value: 'auto', description: 'Android EGL support')
 option('egl-angle', type: 'feature', value: 'auto', description: 'OpenGL ANGLE headers')
@@ -28,3 +28,5 @@ option('gl-dxinterop', type: 'feature', value: 'auto', description: 'OpenGL/Dire
 option('gl-win32', type: 'feature', value: 'auto', description: 'OpenGL Win32 Backend')
 option('gl-x11', type: 'feature', value: 'disabled', description: 'OpenGL X11/GLX (deprecated/legacy)')
 option('shaderc', type: 'feature', value: 'auto', description: 'libshaderc SPIR-V compiler')
+option('vulkan', type: 'feature', value: 'auto', description: 'Vulkan context support')
+option('libplacebo', type: 'feature', value: 'auto', description: 'libplacebo support')

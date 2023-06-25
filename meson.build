@@ -39,6 +39,7 @@ sources = files(
     # 'src/utils.c',
     'src/ra.c',
     'src/spirv.c',
+    'src/context.c',
 
     ## osdeps
     'src/osdep/timer.c',
@@ -128,7 +129,7 @@ if features['android']
     sources += files('src/osdep/android/strnlen.c')
 endif 
 
-# OpenGL feature checking
+# OpenGL 
 gl_allowed = get_option('gl').allowed()
 features += {'gl': false}
 
@@ -155,6 +156,31 @@ features += {'shaderc': shaderc.found()}
 if features['shaderc']
     dependencies += shaderc
     sources += files('src/spirv_shaderc.c')
+endif
+
+# vulkan
+libplacebo = dependency('libplacebo', version: '>=4.157.0', required: get_option('libplacebo'))
+features += {'libplacebo': libplacebo.found()}
+if features['libplacebo']
+    dependencies += libplacebo
+    sources += files('video/out/placebo/ra_pl.c',
+                     'video/out/placebo/utils.c')
+endif
+
+vulkan_opt = get_option('vulkan').require(
+    libplacebo.get_variable('pl_has_vulkan', default_value: '0') == '1',
+    error_message: 'libplacebo could not be found!',
+)
+vulkan = dependency('vulkan', required: vulkan_opt)
+features += {'vulkan': vulkan.found()}
+if features['vulkan']
+    dependencies += vulkan
+    sources += files('video/out/vulkan/context.c',
+                     'video/out/vulkan/utils.c')
+endif
+
+if features['vulkan'] and features['android']
+    sources += files('video/out/vulkan/context_android.c')
 endif
 
 # uwp

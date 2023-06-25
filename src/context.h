@@ -95,8 +95,10 @@ struct ra_swapchain_fns {
 
 // Create and destroy a ra_ctx. This also takes care of creating and destroying
 // the underlying `struct ra`.
-struct ra_ctx *ra_ctx_create(struct ra_ctx_opts opts);
+struct ra_ctx *ra_ctx_create(struct mpv_global *global, struct mp_log *parent, 
+                             struct ra_ctx_opts opts);
 void ra_ctx_destroy(struct ra_ctx **ctx);
 
 // Special case of creating a ra_ctx while specifying a specific context by name.
-struct ra_ctx *ra_ctx_create_by_name(const char *name);
+struct ra_ctx *ra_ctx_create_by_name(struct mpv_global *global, 
+                                     struct mp_log *parent, const char *name);
