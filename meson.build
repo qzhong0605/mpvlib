@@ -28,6 +28,8 @@ features = {
 # generic sources
 sources = files(
     'src/common.c',
+    'src/path.c',
+    # 'src/msg.c',
 
     ## tree allocator
     'src/ta/ta.c',

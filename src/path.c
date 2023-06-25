@@ -27,16 +27,16 @@
 #include <unistd.h>
 #include <errno.h>
 
-#include "config.h"
-
-#include "common/common.h"
-#include "common/global.h"
-#include "common/msg.h"
-#include "options/path.h"
-#include "mpv_talloc.h"
 #include "osdep/io.h"
 #include "osdep/path.h"
 #include "misc/ctype.h"
+
+#include "config.h"
+#include "mpv_talloc.h"
+#include "path.h"
+#include "common.h"
+#include "global.h"
+#include "msg.h"
 
 // In order of decreasing priority: the first has highest priority.
 static const mp_get_platform_path_cb path_resolvers[] = {
